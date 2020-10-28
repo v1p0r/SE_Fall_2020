@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ActivityAdvice"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/text_advice_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Advices for You"
+        android:textSize="50dp"/>
+
+    <RelativeLayout
+        android:id="@+id/widget_covid_cases"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_advice_title"
+        android:background="@drawable/shape_advice_widget"
+        android:padding="10dp"
+        android:layout_marginTop="10dp">
+        <TextView
+            android:id="@+id/text_covid_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="COVID19 Cases"
+            android:textSize="24dp"/>
+        <TextView
+            android:id="@+id/text_covid_cases"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text_covid_title"
+            android:text="Getting data..."
+            android:textSize="40dp"
+            android:gravity="right"/>
+        <TextView
+            android:id="@+id/text_covid_advice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text_covid_cases"
+            android:layout_marginTop="5dp"
+            android:text="Advice.."
+            android:textSize="16dp"
+            android:gravity="left"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text_covid_advice"
+            android:text="More Info"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="200dp"
+            android:background="#FFFFFF"
+            android:textColor="#000000"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/widget_exercises"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/widget_covid_cases"
+        android:background="@drawable/shape_advice_widget"
+        android:padding="10dp"
+        android:layout_marginTop="10dp">
+        <TextView
+            android:id="@+id/text_exercises_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Exercises"
+            android:textSize="24dp"/>
+        <TextView
+            android:id="@+id/text_exercises"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text_exercises_title"
+            android:text="You need more exercises."
+            android:textSize="16dp"
+            android:gravity="left"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text_exercises"
+            android:layout_marginLeft="200dp"
+            android:text="More Info"
+            android:layout_marginTop="10dp"
+            android:background="#FFFFFF"
+            android:textColor="#000000"/>
+    </RelativeLayout>
+
+</RelativeLayout>
