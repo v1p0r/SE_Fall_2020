@@ -1,4 +1,4 @@
-package com.example.covidadvicesystem;
+package com.example.healthmonitor;
 
 import org.junit.Test;
 
