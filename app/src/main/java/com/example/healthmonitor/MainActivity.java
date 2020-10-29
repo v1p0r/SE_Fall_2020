@@ -1,12 +1,16 @@
 package com.example.healthmonitor;
 
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -39,9 +43,6 @@ public class MainActivity extends AppCompatActivity {
                     initFragment(2);
                     return true;
 
-                case R.id.navigation_notifications:
-
-                    return true;
                 case R.id.navigation_settings:
                     initFragment(3);
                     return true;
@@ -75,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             case 2:
-                if (adviceFragment == null){
+                if (adviceFragment == null) {
                     adviceFragment = AdviceFragment.newInstance(userName, session);
                     transaction.add(R.id.fl_content, adviceFragment);
                 } else {
@@ -116,8 +117,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-       // mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         initFragment(0);

@@ -13,6 +13,7 @@
     <string name="text_exercises_title">Exercise Index</string>
     <string name="text_tips_title">Tips</string>
     <string name="text_end">No more...</string>
+    <string name="login_title">Welcome</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
