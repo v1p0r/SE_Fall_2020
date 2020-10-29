@@ -81,10 +81,18 @@
                     android:text="@string/text_exercises_title"
                     android:textSize="24sp"/>
                 <TextView
-                    android:id="@+id/text_exercises"
+                    android:id="@+id/text_exercises_index"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/text_exercises_title"
+                    android:text="@string/text_getting_data"
+                    android:textSize="40sp"
+                    android:gravity="end"/>
+                <TextView
+                    android:id="@+id/text_exercises"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/text_exercises_index"
                     android:text="@string/text_advice_etc"
                     android:textSize="16sp"
                     android:gravity="start"/>

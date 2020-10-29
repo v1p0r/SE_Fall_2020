@@ -29,6 +29,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 public class AdviceFragment extends Fragment {
@@ -36,6 +41,7 @@ public class AdviceFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String USER_NAME = "user_name";
     private static final String SESSION = "session";
+    private static final int LATENCY = 86400;
 
     private String userName;
     private String session;
@@ -46,6 +52,8 @@ public class AdviceFragment extends Fragment {
     private TextView textUser;
     private TextView textCovidCases;
     private TextView textCovidAdvice;
+    private TextView textExerciseAdvice;
+    private TextView textExerciseIndex;
     private TextView textTips;
     private ScrollView scrollWidgets;
     private RelativeLayout layoutWidgets;
@@ -87,6 +95,8 @@ public class AdviceFragment extends Fragment {
         layoutWidgets = view.findViewById(R.id.layout_widgets);
         textCovidCases = view.findViewById(R.id.text_covid_cases);
         textCovidAdvice = view.findViewById(R.id.text_covid_advice);
+        textExerciseAdvice = view.findViewById(R.id.text_exercises);
+        textExerciseIndex = view.findViewById(R.id.text_exercises_index);
         textTips = view.findViewById((R.id.text_tips));
         refreshAll();
     }
@@ -111,19 +121,20 @@ public class AdviceFragment extends Fragment {
         Log.d("date", stringDate);
         getCurrentCovidCases("US", stringDate);
         getDiffCovidCases("US", stringDate);
+        getExerciseAdvice();
         getTips();
     }
 
     private void getCurrentCovidCases(String region, String date){
         RequestQueue queue = Volley.newRequestQueue(mContext);
         String covid_cases_url = covidHost + "/status/" + region + "?date=" + date;
-        Log.d("new_cases", covid_cases_url);
+        Log.d("AdviceFragment", "current cases url: "+covid_cases_url);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, covid_cases_url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         // Display the first 500 characters of the response string.
-                        Log.d("new_cases", response.toString());
+                        Log.d("AdviceFragment", "new cases: "+response.toString());
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             textCovidCases.setText(jsonObject.optString("cases"));
@@ -135,7 +146,7 @@ public class AdviceFragment extends Fragment {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("cases",error.toString());
+                Log.d("AdviceFragment","getCurrentCovidCases error: "+error.toString());
             }
         });
         queue.add(stringRequest);
@@ -145,7 +156,7 @@ public class AdviceFragment extends Fragment {
     private void getDiffCovidCases(String region, String date){
         RequestQueue queue = Volley.newRequestQueue(mContext);
         String covid_cases_url = covidHost + "/diff/" + region + "?date=" + date;
-        Log.d("cases", covid_cases_url);
+        Log.d("AdviceFragment", "diff cases url: "+covid_cases_url);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, covid_cases_url,
                 new Response.Listener<String>() {
                     @Override
@@ -174,11 +185,76 @@ public class AdviceFragment extends Fragment {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("cases",error.toString());
+                Log.d("AdviceFragment","getDiffCovidCases error: "+error.toString());
             }
         });
         queue.add(stringRequest);
         return;
+    }
+
+    public static String getString(InputStream inputStream) {
+        InputStreamReader inputStreamReader = null;
+        try {
+            inputStreamReader = new InputStreamReader(inputStream, "utf-8");
+        } catch (UnsupportedEncodingException e1) {
+            e1.printStackTrace();
+        }
+        BufferedReader reader = new BufferedReader(inputStreamReader);
+        StringBuffer sb = new StringBuffer("");
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+                sb.append("\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
+    }
+
+    private double calculateExerciseValue(int resourceId, int secLatency){
+        InputStream inputStream = getResources().openRawResource(resourceId);
+        String rawHeartrateData = getString(inputStream);
+        //Log.d("AdviceFragment", "HeartRate.rawdata\n"+rawHeartrateData);
+        String[] strHeartrateData = rawHeartrateData.split("\n");
+        double[] fHeartrateData = new double[strHeartrateData.length];
+        for (int i=0; i<strHeartrateData.length; i++){
+            fHeartrateData[i] = Double.parseDouble(strHeartrateData[i]);
+            //Log.d("AdviceFragment", "HeartRate.rawdata\n"+fHeartrateData[i]);
+        }
+        double meanHeartrate = 0;
+        for (double heartrate: fHeartrateData){
+            meanHeartrate += heartrate/fHeartrateData.length;
+        }
+        Log.d("AdviceFragment", "HeartRate.average "+meanHeartrate);
+        double exerciseValue = 0;
+        for(double heartrate: fHeartrateData){
+            if(heartrate>=meanHeartrate){
+                exerciseValue += (heartrate - meanHeartrate);
+            }
+        }
+        exerciseValue *= (LATENCY/secLatency);
+        exerciseValue /= 1000;
+        Log.d("AdviceFragment", "HeartRate.exercise value "+exerciseValue);
+        return exerciseValue;
+    }
+
+    private void getExerciseAdvice(){
+        int secLatency = 900;
+        double exerciseValue = calculateExerciseValue(R.raw.data1, secLatency);
+        textExerciseIndex.setText(Integer.toString((int)exerciseValue));
+        String exerciseAdvice = "";
+        if (exerciseValue >= 0 && exerciseValue <= 150){
+            exerciseAdvice += "Come on! Do some exercises!\n";
+        } else if(exerciseValue > 150 && exerciseValue <= 300){
+            exerciseAdvice += "I believe you have some activities today, please continue.\n";
+        } else if(exerciseValue > 300){
+            exerciseAdvice += "Awesome, you must have done a lot of exercise today!\n";
+        }
+        exerciseAdvice += "These advices depend on your exercises in last 24 hours.\n";
+        exerciseAdvice += "Keeping your exercise index above 300 can reduce the risk of unhealthy.";
+        textExerciseAdvice.setText(exerciseAdvice);
     }
 
     private void getTips(){
