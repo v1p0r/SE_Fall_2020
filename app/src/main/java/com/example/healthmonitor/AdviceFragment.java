@@ -41,6 +41,7 @@ public class AdviceFragment extends Fragment {
     private static final String USER_NAME = "user_name";
     private static final String SESSION = "session";
     private static final int LATENCY = 86400;
+    private static final int STEP_GOAL = 8000;
 
     private String userName;
     private String session;
@@ -212,7 +213,7 @@ public class AdviceFragment extends Fragment {
         return sb.toString();
     }
 
-    private double calculateExerciseIndex(int resourceId){
+    private double calculateExerciseIndex(int resourceId, int[] steps){
         InputStream inputStream = getResources().openRawResource(resourceId);
         String rawHeartrateData = getString(inputStream);
         //Log.d("AdviceFragment", "HeartRate.rawdata\n"+rawHeartrateData);
@@ -232,10 +233,10 @@ public class AdviceFragment extends Fragment {
         for(double heartrate: fHeartrateData){
             double heartrateRatio = heartrate/meanHeartrate;
             if(heartrateRatio >= 1.2 && heartrateRatio <1.5){
-                exerciseIndex += 0.02;
+                exerciseIndex += 0.05;
             }
             else if(heartrateRatio >= 1.5 && heartrateRatio < 1.8){
-                exerciseIndex += 0.1;
+                exerciseIndex += 0.2;
             }
             else if(heartrateRatio >= 1.8){
                 exerciseIndex += 0.5;
@@ -244,16 +245,26 @@ public class AdviceFragment extends Fragment {
                 exerciseIndex += 0;
             }
         }
-        //exerciseIndex *= (LATENCY/secLatency);
-        //exerciseIndex /= 1000;
-        Log.d("AdviceFragment", "HeartRate.exercise value "+exerciseIndex);
+        Log.d("AdviceFragment", "HeartRate.exercise index without step "+exerciseIndex);
+        double meanSteps = 0;
+        for (int step: steps){
+            meanSteps += step/steps.length;
+        }
+        double stepScore = meanSteps/STEP_GOAL * 100;
+        Log.d("AdviceFragment", "HeartRate.step score "+stepScore);
+        double exerciseIndexRatio = 0.8;
+        exerciseIndex = exerciseIndex*exerciseIndexRatio + stepScore*(1-exerciseIndexRatio);
+        Log.d("AdviceFragment", "HeartRate.exercise index "+exerciseIndex);
         return exerciseIndex;
     }
 
     private void getExerciseAdvice(){
-        double exerciseIndex = calculateExerciseIndex(R.raw.heartbeat1);
-        double exerciseIndex1 = calculateExerciseIndex(R.raw.heartbeat2);
-        double exerciseIndex2 = calculateExerciseIndex(R.raw.heartbeat3);
+        int[] steps = {296, 642, 438, 1005, 3201, 231, 768};
+        double exerciseIndex = calculateExerciseIndex(R.raw.heartbeat1, steps);
+        //int[] steps2 = {14693, 12088, 8360, 9880, 3201, 231, 18200};
+        //double exerciseIndex1 = calculateExerciseIndex(R.raw.heartbeat2, steps2);
+        //int[] steps3 = {17208, 23044, 7358, 17238, 12783, 7810, 17282};
+        //double exerciseIndex2 = calculateExerciseIndex(R.raw.heartbeat3, steps3);
         textExerciseIndex.setText(Integer.toString((int)exerciseIndex));
         String exerciseAdvice = "";
         if (exerciseIndex >= 0 && exerciseIndex <= 30){
