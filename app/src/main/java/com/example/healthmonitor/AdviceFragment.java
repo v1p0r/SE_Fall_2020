@@ -22,7 +22,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.android.volley.Request;
-import com.android.volley.Request.Method;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -213,12 +212,13 @@ public class AdviceFragment extends Fragment {
         return sb.toString();
     }
 
-    private double calculateExerciseValue(int resourceId, int secLatency){
+    private double calculateExerciseIndex(int resourceId){
         InputStream inputStream = getResources().openRawResource(resourceId);
         String rawHeartrateData = getString(inputStream);
         //Log.d("AdviceFragment", "HeartRate.rawdata\n"+rawHeartrateData);
         String[] strHeartrateData = rawHeartrateData.split("\n");
         double[] fHeartrateData = new double[strHeartrateData.length];
+        Log.d("AdviceFragment", "HeartRate.length "+ strHeartrateData.length);
         for (int i=0; i<strHeartrateData.length; i++){
             fHeartrateData[i] = Double.parseDouble(strHeartrateData[i]);
             //Log.d("AdviceFragment", "HeartRate.rawdata\n"+fHeartrateData[i]);
@@ -228,32 +228,48 @@ public class AdviceFragment extends Fragment {
             meanHeartrate += heartrate/fHeartrateData.length;
         }
         Log.d("AdviceFragment", "HeartRate.average "+meanHeartrate);
-        double exerciseValue = 0;
+        double exerciseIndex = 0;
         for(double heartrate: fHeartrateData){
-            if(heartrate>=meanHeartrate){
-                exerciseValue += (heartrate - meanHeartrate);
+            double heartrateRatio = heartrate/meanHeartrate;
+            if(heartrateRatio >= 1.2 && heartrateRatio <1.5){
+                exerciseIndex += 0.02;
+            }
+            else if(heartrateRatio >= 1.5 && heartrateRatio < 1.8){
+                exerciseIndex += 0.1;
+            }
+            else if(heartrateRatio >= 1.8){
+                exerciseIndex += 0.5;
+            }
+            else {
+                exerciseIndex += 0;
             }
         }
-        exerciseValue *= (LATENCY/secLatency);
-        exerciseValue /= 1000;
-        Log.d("AdviceFragment", "HeartRate.exercise value "+exerciseValue);
-        return exerciseValue;
+        //exerciseIndex *= (LATENCY/secLatency);
+        //exerciseIndex /= 1000;
+        Log.d("AdviceFragment", "HeartRate.exercise value "+exerciseIndex);
+        return exerciseIndex;
     }
 
     private void getExerciseAdvice(){
-        int secLatency = 900;
-        double exerciseValue = calculateExerciseValue(R.raw.data1, secLatency);
-        textExerciseIndex.setText(Integer.toString((int)exerciseValue));
+        double exerciseIndex = calculateExerciseIndex(R.raw.heartbeat1);
+        double exerciseIndex1 = calculateExerciseIndex(R.raw.heartbeat2);
+        double exerciseIndex2 = calculateExerciseIndex(R.raw.heartbeat3);
+        textExerciseIndex.setText(Integer.toString((int)exerciseIndex));
         String exerciseAdvice = "";
-        if (exerciseValue >= 0 && exerciseValue <= 150){
+        if (exerciseIndex >= 0 && exerciseIndex <= 30){
             exerciseAdvice += "Come on! Do some exercises!\n";
-        } else if(exerciseValue > 150 && exerciseValue <= 300){
+        }
+        else if(exerciseIndex > 30 && exerciseIndex <= 60){
             exerciseAdvice += "I believe you have some activities today, please continue.\n";
-        } else if(exerciseValue > 300){
+        }
+        else if(exerciseIndex > 60 && exerciseIndex <= 100){
+            exerciseAdvice += "I believe you have some activities today, please continue.\n";
+        }
+        else if(exerciseIndex > 100){
             exerciseAdvice += "Awesome, you must have done a lot of exercise today!\n";
         }
-        exerciseAdvice += "These advices depend on your exercises in last 24 hours.\n";
-        exerciseAdvice += "Keeping your exercise index above 300 can reduce the risk of unhealthy.";
+        exerciseAdvice += "These advices depend on your exercises in last 7 days.\n";
+        exerciseAdvice += "Keeping your exercise index above 100 can reduce the risk of unhealthy.";
         textExerciseAdvice.setText(exerciseAdvice);
     }
 
