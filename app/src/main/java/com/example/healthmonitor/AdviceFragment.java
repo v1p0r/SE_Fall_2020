@@ -113,7 +113,7 @@ public class AdviceFragment extends Fragment {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    private void refreshAll(){
+    private void refreshAll() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date = new Date(System.currentTimeMillis());
         String stringDate = simpleDateFormat.format(date);
@@ -124,20 +124,20 @@ public class AdviceFragment extends Fragment {
         getTips();
     }
 
-    private void getCurrentCovidCases(String region, String date){
+    private void getCurrentCovidCases(String region, String date) {
         RequestQueue queue = Volley.newRequestQueue(mContext);
         String covid_cases_url = covidHost + "/status/" + region + "?date=" + date;
-        Log.d("AdviceFragment", "current cases url: "+covid_cases_url);
+        Log.d("AdviceFragment", "current cases url: " + covid_cases_url);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, covid_cases_url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         // Display the first 500 characters of the response string.
-                        Log.d("AdviceFragment", "new cases: "+response.toString());
+                        Log.d("AdviceFragment", "new cases: " + response.toString());
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             textCovidCases.setText(jsonObject.optString("cases"));
-                        }catch (JSONException e){
+                        } catch (JSONException e) {
                             e.printStackTrace();
                             Toast.makeText(mContext, "Network Error", Toast.LENGTH_SHORT).show();
                         }
@@ -145,17 +145,17 @@ public class AdviceFragment extends Fragment {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("AdviceFragment","getCurrentCovidCases error: "+error.toString());
+                Log.d("AdviceFragment", "getCurrentCovidCases error: " + error.toString());
             }
         });
         queue.add(stringRequest);
         return;
     }
 
-    private void getDiffCovidCases(String region, String date){
+    private void getDiffCovidCases(String region, String date) {
         RequestQueue queue = Volley.newRequestQueue(mContext);
         String covid_cases_url = covidHost + "/diff/" + region + "?date=" + date;
-        Log.d("AdviceFragment", "diff cases url: "+covid_cases_url);
+        Log.d("AdviceFragment", "diff cases url: " + covid_cases_url);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, covid_cases_url,
                 new Response.Listener<String>() {
                     @Override
@@ -168,15 +168,15 @@ public class AdviceFragment extends Fragment {
                             int intNewCases = Integer.parseInt(strNewCases);
                             String covidAdvice = "There are " + strNewCases + " new cases yesterday.";
                             textCovidAdvice.setText(covidAdvice);
-                            if (intNewCases>0 && intNewCases<=100){
+                            if (intNewCases > 0 && intNewCases <= 100) {
                                 covidAdvice += "\nPlease wear mask when getting out.";
                             } else if (intNewCases > 100) {
                                 covidAdvice += "\nYou'd better stay at home!";
-                            } else if (intNewCases == 0){
+                            } else if (intNewCases == 0) {
                                 covidAdvice += "It is a nice day.";
                             }
                             textCovidAdvice.setText(covidAdvice);
-                        }catch (JSONException e){
+                        } catch (JSONException e) {
                             e.printStackTrace();
                             Toast.makeText(mContext, "Network Error", Toast.LENGTH_SHORT).show();
                         }
@@ -184,7 +184,7 @@ public class AdviceFragment extends Fragment {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("AdviceFragment","getDiffCovidCases error: "+error.toString());
+                Log.d("AdviceFragment", "getDiffCovidCases error: " + error.toString());
             }
         });
         queue.add(stringRequest);
@@ -212,60 +212,54 @@ public class AdviceFragment extends Fragment {
         return sb.toString();
     }
 
-    private double calculateExerciseIndex(int resourceId){
+    private double calculateExerciseIndex(int resourceId) {
         InputStream inputStream = getResources().openRawResource(resourceId);
         String rawHeartrateData = getString(inputStream);
         //Log.d("AdviceFragment", "HeartRate.rawdata\n"+rawHeartrateData);
         String[] strHeartrateData = rawHeartrateData.split("\n");
         double[] fHeartrateData = new double[strHeartrateData.length];
-        Log.d("AdviceFragment", "HeartRate.length "+ strHeartrateData.length);
-        for (int i=0; i<strHeartrateData.length; i++){
+        Log.d("AdviceFragment", "HeartRate.length " + strHeartrateData.length);
+        for (int i = 0; i < strHeartrateData.length; i++) {
             fHeartrateData[i] = Double.parseDouble(strHeartrateData[i]);
             //Log.d("AdviceFragment", "HeartRate.rawdata\n"+fHeartrateData[i]);
         }
         double meanHeartrate = 0;
-        for (double heartrate: fHeartrateData){
-            meanHeartrate += heartrate/fHeartrateData.length;
+        for (double heartrate : fHeartrateData) {
+            meanHeartrate += heartrate / fHeartrateData.length;
         }
-        Log.d("AdviceFragment", "HeartRate.average "+meanHeartrate);
+        Log.d("AdviceFragment", "HeartRate.average " + meanHeartrate);
         double exerciseIndex = 0;
-        for(double heartrate: fHeartrateData){
-            double heartrateRatio = heartrate/meanHeartrate;
-            if(heartrateRatio >= 1.2 && heartrateRatio <1.5){
+        for (double heartrate : fHeartrateData) {
+            double heartrateRatio = heartrate / meanHeartrate;
+            if (heartrateRatio >= 1.2 && heartrateRatio < 1.5) {
                 exerciseIndex += 0.02;
-            }
-            else if(heartrateRatio >= 1.5 && heartrateRatio < 1.8){
+            } else if (heartrateRatio >= 1.5 && heartrateRatio < 1.8) {
                 exerciseIndex += 0.1;
-            }
-            else if(heartrateRatio >= 1.8){
+            } else if (heartrateRatio >= 1.8) {
                 exerciseIndex += 0.5;
-            }
-            else {
+            } else {
                 exerciseIndex += 0;
             }
         }
         //exerciseIndex *= (LATENCY/secLatency);
         //exerciseIndex /= 1000;
-        Log.d("AdviceFragment", "HeartRate.exercise value "+exerciseIndex);
+        Log.d("AdviceFragment", "HeartRate.exercise value " + exerciseIndex);
         return exerciseIndex;
     }
 
-    private void getExerciseAdvice(){
+    private void getExerciseAdvice() {
         double exerciseIndex = calculateExerciseIndex(R.raw.heartbeat1);
         double exerciseIndex1 = calculateExerciseIndex(R.raw.heartbeat2);
         double exerciseIndex2 = calculateExerciseIndex(R.raw.heartbeat3);
-        textExerciseIndex.setText(Integer.toString((int)exerciseIndex));
+        textExerciseIndex.setText(Integer.toString((int) exerciseIndex));
         String exerciseAdvice = "";
-        if (exerciseIndex >= 0 && exerciseIndex <= 30){
+        if (exerciseIndex >= 0 && exerciseIndex <= 30) {
             exerciseAdvice += "Come on! Do some exercises!\n";
-        }
-        else if(exerciseIndex > 30 && exerciseIndex <= 60){
+        } else if (exerciseIndex > 30 && exerciseIndex <= 60) {
             exerciseAdvice += "I believe you have some activities today, please continue.\n";
-        }
-        else if(exerciseIndex > 60 && exerciseIndex <= 100){
+        } else if (exerciseIndex > 60 && exerciseIndex <= 100) {
             exerciseAdvice += "I believe you have some activities today, please continue.\n";
-        }
-        else if(exerciseIndex > 100){
+        } else if (exerciseIndex > 100) {
             exerciseAdvice += "Awesome, you must have done a lot of exercise today!\n";
         }
         exerciseAdvice += "These advices depend on your exercises in last 7 days.\n";
@@ -273,7 +267,7 @@ public class AdviceFragment extends Fragment {
         textExerciseAdvice.setText(exerciseAdvice);
     }
 
-    private void getTips(){
+    private void getTips() {
         String[] listTips = {"Washing your hands actively can be effective in preventing viruses.",
                 "When you are indoors, please always open the window to ventilate.",
                 "Please wear a mask when you go out.",
@@ -282,7 +276,7 @@ public class AdviceFragment extends Fragment {
                 "When you are queuing at the supermarket cashier, keep at least 1 meter away from the customer in front of you.",
                 "When you are taking the elevator, please keep your distance from others.",
                 "Please do not take off your mask when taking public transportation, as this will increase the risk of infection."};
-        int tipIndex = (int)(listTips.length * Math.random());
+        int tipIndex = (int) (listTips.length * Math.random());
         textTips.setText(listTips[tipIndex]);
     }
 }
