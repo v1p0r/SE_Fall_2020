@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_days"
+        android:icon="@mipmap/ic_launcher"
+        android:orderInCategory="100"
+        android:title="Day" />
+    <item
+        android:id="@+id/action_weeks"
+        android:icon="@mipmap/ic_launcher"
+        android:orderInCategory="100"
+        android:title="Week" />
+    <item
+        android:id="@+id/action_Months"
+        android:icon="@mipmap/ic_launcher"
+        android:orderInCategory="100"
+        android:title="Month" />
+</menu>
