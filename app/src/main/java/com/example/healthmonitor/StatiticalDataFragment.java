@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Spinner;
 import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
@@ -41,25 +42,37 @@ public class StatiticalDataFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-
+        Spinner typeSpinner = view.findViewById(R.id.spinner_summary);
 
         LineChart mLineChart = view.findViewById(R.id.lineChart);
+
+        LineChart hLineChart = view.findViewById(R.id.lineChart_temp);
         //显示边界
         mLineChart.setDrawBorders(true);
         BarChart mBarChart = view.findViewById(R.id.barChart);
 
         List<BarEntry> blist = new ArrayList<>();
         //设置数据
-        List<Entry> entries = new ArrayList<>();
-        for (int i = 0; i < 7; i++) {
-            entries.add(new Entry(i, (float) (Math.random()) * 100));
+        List<Entry> heartbeatList = new ArrayList<>();
+
+        List<Entry> tempList = new ArrayList<>();
+
+
+        for (int i = 1; i < 8; i++) {
+            heartbeatList.add(new Entry(i, (float) (Math.random()) * 100));
+            tempList.add(new Entry(i, (float) (Math.random()) * 30));
             blist.add(new BarEntry(i, (float) (Math.random()) * 8000));
         }
         //一个LineDataSet就是一条线
-        LineDataSet lineDataSet = new LineDataSet(entries, "HeartBeat");
+        LineDataSet lineDataSet = new LineDataSet(heartbeatList, "HeartBeat");
         LineData data = new LineData(lineDataSet);
         mLineChart.setData(data);
         mLineChart.getDescription().setEnabled(false);
+
+        LineDataSet tempDataSet = new LineDataSet(tempList, "Temp");
+        LineData tempdata = new LineData(tempDataSet);
+        hLineChart.setData(tempdata);
+        hLineChart.getDescription().setEnabled(false);
 
 
         BarDataSet barDataSet = new BarDataSet(blist, "Steps");
