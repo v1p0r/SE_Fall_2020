@@ -47,7 +47,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/text_steps_num"
                     android:gravity="center"
-                    android:text="800 steps"
+                    android:text="@string/text_getting_data"
                     android:textSize="40sp" />
 
             </RelativeLayout>
@@ -71,43 +71,15 @@
                     android:textSize="24sp" />
 
                 <TextView
-                    android:id="@+id/text_exercises_index"
+                    android:id="@+id/text_heartrate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/text_heartrate_title"
                     android:gravity="center"
-                    android:text="85 bps"
+                    android:text="@string/text_getting_data"
                     android:textSize="40sp" />
 
 
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/widget_body_temp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/widget_heartrate"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/shape_advice_widget"
-                android:padding="10dp"
-                android:paddingTop="40dp">
-
-                <TextView
-                    android:id="@+id/text_temp_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Temperature"
-                    android:textSize="24sp" />
-
-                <TextView
-                    android:id="@+id/text_temp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/text_temp_title"
-                    android:gravity="center"
-                    android:text="20°C"
-                    android:textSize="40sp" />
             </RelativeLayout>
         </RelativeLayout>
     </ScrollView>
