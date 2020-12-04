@@ -2,23 +2,18 @@ package com.example.healthmonitor;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 
 public class LoginActivity extends AppCompatActivity {
-    EditText accountEditText;
-    EditText pwdEditText;
-    Button logInBtn;
-    Button signInBtn;
+    private EditText accountEditText;
+    private EditText pwdEditText;
+    private Button logInBtn;
+    private Button signInBtn;
 
 
     @Override
@@ -26,7 +21,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_page);
         accountEditText = findViewById(R.id.account_input);
-
         pwdEditText = findViewById(R.id.password_input);
         logInBtn = findViewById(R.id.btn_signin);
         logInBtn.setOnClickListener(new View.OnClickListener() {
