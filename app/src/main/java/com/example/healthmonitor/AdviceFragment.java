@@ -1,6 +1,7 @@
 package com.example.healthmonitor;
 
 import android.content.Context;
+import android.content.Intent;
 import android.icu.text.SimpleDateFormat;
 import android.os.Build;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -45,7 +47,10 @@ public class AdviceFragment extends Fragment {
 
     private String userName;
     private String session;
-    private String covidHost = "https://covid19-api.org/api";
+    private int[] steps;
+    private double[] heartrate;
+    //private String covidHost = "https://covid19-api.org/api";
+    private String covidHost = "https://api.covidtracking.com/v1/states/";
 
     private Context mContext;
 
@@ -57,13 +62,16 @@ public class AdviceFragment extends Fragment {
     private TextView textTips;
     private ScrollView scrollWidgets;
     private RelativeLayout layoutWidgets;
+    private Button btnMoreCovidInfo;
 
 
-    public static AdviceFragment newInstance(String user_name, String session) {
+    public static AdviceFragment newInstance(String user_name, String session, int[] steps, double[] heartrate) {
         AdviceFragment fragment = new AdviceFragment();
         Bundle args = new Bundle();
         args.putString(USER_NAME, user_name);
         args.putString(SESSION, session);
+        args.putDoubleArray("heartrate", heartrate);
+        args.putIntArray("steps", steps);
         fragment.setArguments(args);
         return fragment;
     }
@@ -91,6 +99,16 @@ public class AdviceFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.d("AdviceFragment", "onViewCreated");
+        if (getArguments() != null) {
+            steps = getArguments().getIntArray("steps");
+            // Log.d("HomeFragment", "steps: " + steps);
+            heartrate = getArguments().getDoubleArray("heartrate");
+            // Log.d("HomeFragment", "heartrate: " + heartrate);
+        }
+        else {
+            steps = new int[]{-1};
+            heartrate = new double[]{-1};
+        }
         scrollWidgets = view.findViewById(R.id.scrollView_widgets);
         layoutWidgets = view.findViewById(R.id.layout_widgets);
         textCovidCases = view.findViewById(R.id.text_covid_cases);
@@ -98,6 +116,16 @@ public class AdviceFragment extends Fragment {
         textExerciseAdvice = view.findViewById(R.id.text_exercises);
         textExerciseIndex = view.findViewById(R.id.text_exercises_index);
         textTips = view.findViewById((R.id.text_tips));
+        btnMoreCovidInfo = view.findViewById((R.id.btn_covid_more));
+
+        btnMoreCovidInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                Intent intent = new Intent(getActivity(), CovidMore.class);
+                startActivity(intent);
+            }
+        });
         refreshAll();
     }
 
@@ -119,15 +147,16 @@ public class AdviceFragment extends Fragment {
         Date date = new Date(System.currentTimeMillis());
         String stringDate = simpleDateFormat.format(date);
         Log.d("date", stringDate);
-        getCurrentCovidCases("US", stringDate);
-        getDiffCovidCases("US", stringDate);
+        getCurrentCovidCases("nj");
+        //getDiffCovidCases("US", stringDate);
         getExerciseAdvice();
         getTips();
     }
 
-    private void getCurrentCovidCases(String region, String date){
+    private void getCurrentCovidCases(String region){
         RequestQueue queue = Volley.newRequestQueue(mContext);
-        String covid_cases_url = covidHost + "/status/" + region + "?date=" + date;
+        // String covid_cases_url = covidHost + "/status/" + region + "?date=" + date;
+        String covid_cases_url = covidHost + region + "/current.json";
         Log.d("AdviceFragment", "current cases url: "+covid_cases_url);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, covid_cases_url,
                 new Response.Listener<String>() {
@@ -137,7 +166,20 @@ public class AdviceFragment extends Fragment {
                         Log.d("AdviceFragment", "new cases: "+response.toString());
                         try {
                             JSONObject jsonObject = new JSONObject(response);
-                            textCovidCases.setText(jsonObject.optString("cases"));
+                            textCovidCases.setText(jsonObject.optString("positive"));
+                            String strNewCases = jsonObject.optString("positiveIncrease");
+                            int intNewCases = Integer.parseInt(strNewCases);
+                            String covidAdvice = "There are " + strNewCases + " new cases yesterday.";
+                            textCovidAdvice.setText(covidAdvice);
+                            int population = 8724560;
+                            if (intNewCases>0 && intNewCases<=(population/1000)){
+                                covidAdvice += "\nPlease wear mask when getting out.";
+                            } else if (intNewCases > (population/1000)) {
+                                covidAdvice += "\nYou'd better stay at home!";
+                            } else if (intNewCases == 0){
+                                covidAdvice += "It is a nice day.";
+                            }
+                            textCovidAdvice.setText(covidAdvice);
                         }catch (JSONException e){
                             e.printStackTrace();
                             Toast.makeText(mContext, "Network Error", Toast.LENGTH_SHORT).show();
@@ -213,17 +255,7 @@ public class AdviceFragment extends Fragment {
         return sb.toString();
     }
 
-    private double calculateExerciseIndex(int resourceId, int[] steps){
-        InputStream inputStream = getResources().openRawResource(resourceId);
-        String rawHeartrateData = getString(inputStream);
-        //Log.d("AdviceFragment", "HeartRate.rawdata\n"+rawHeartrateData);
-        String[] strHeartrateData = rawHeartrateData.split("\n");
-        double[] fHeartrateData = new double[strHeartrateData.length];
-        Log.d("AdviceFragment", "HeartRate.length "+ strHeartrateData.length);
-        for (int i=0; i<strHeartrateData.length; i++){
-            fHeartrateData[i] = Double.parseDouble(strHeartrateData[i]);
-            //Log.d("AdviceFragment", "HeartRate.rawdata\n"+fHeartrateData[i]);
-        }
+    private double calculateExerciseIndex(int[] steps, double[] fHeartrateData){
         double meanHeartrate = 0;
         for (double heartrate: fHeartrateData){
             meanHeartrate += heartrate/fHeartrateData.length;
@@ -259,8 +291,8 @@ public class AdviceFragment extends Fragment {
     }
 
     private void getExerciseAdvice(){
-        int[] steps = {296, 642, 438, 1005, 3201, 231, 768};
-        double exerciseIndex = calculateExerciseIndex(R.raw.heartbeat1, steps);
+        //int[] steps = {296, 642, 438, 1005, 3201, 231, 768};
+        double exerciseIndex = calculateExerciseIndex(steps, heartrate);
         //int[] steps2 = {14693, 12088, 8360, 9880, 3201, 231, 18200};
         //double exerciseIndex1 = calculateExerciseIndex(R.raw.heartbeat2, steps2);
         //int[] steps3 = {17208, 23044, 7358, 17238, 12783, 7810, 17282};

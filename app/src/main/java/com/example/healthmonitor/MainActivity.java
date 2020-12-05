@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case 2:
                 if (adviceFragment == null) {
-                    adviceFragment = AdviceFragment.newInstance(userName, session);
+                    adviceFragment = AdviceFragment.newInstance(userName, session, steps, heartrate);
                     transaction.add(R.id.fl_content, adviceFragment);
                 } else {
                     transaction.show(adviceFragment);
