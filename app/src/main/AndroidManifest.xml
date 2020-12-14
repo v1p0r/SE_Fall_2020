@@ -12,6 +12,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".CovidMore"></activity>
+        <activity android:name=".BasicInfoSettings"></activity>
         <activity
             android:name=".LoginActivity"
             android:label="@string/login_title">
@@ -23,9 +25,7 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name">
-
-        </activity>
+            android:label="@string/app_name"></activity>
     </application>
 
 </manifest>

@@ -2,6 +2,7 @@ package com.example.healthmonitor;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +28,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StatiticalDataFragment extends Fragment {
+    private int[] steps;
+    private double[] heartrate;
+
+
+    public static StatiticalDataFragment newInstance(int[] steps, double[] heartrate) {
+        Bundle args = new Bundle();
+        args.putIntArray("steps", steps);
+        args.putDoubleArray("heartrate", heartrate);
+        StatiticalDataFragment fragment = new StatiticalDataFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -42,52 +56,57 @@ public class StatiticalDataFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        if (getArguments() != null) {
+            steps = getArguments().getIntArray("steps");
+            // Log.d("HomeFragment", "steps: " + steps);
+            heartrate = getArguments().getDoubleArray("heartrate");
+            // Log.d("HomeFragment", "heartrate: " + heartrate);
+        } else {
+            steps = new int[]{-1};
+            heartrate = new double[]{-1};
+        }
+
         Spinner typeSpinner = view.findViewById(R.id.spinner_summary);
 
-        LineChart mLineChart = view.findViewById(R.id.lineChart);
+        LineChart mLineChartHeartrate = view.findViewById(R.id.lineChart);
 
-        LineChart hLineChart = view.findViewById(R.id.lineChart_temp);
         //显示边界
-        mLineChart.setDrawBorders(true);
-        BarChart mBarChart = view.findViewById(R.id.barChart);
+        mLineChartHeartrate.setDrawBorders(true);
+        BarChart mBarChartSteps = view.findViewById(R.id.barChart);
 
-        List<BarEntry> blist = new ArrayList<>();
+        List<BarEntry> listSteps = new ArrayList<>();
         //设置数据
-        List<Entry> heartbeatList = new ArrayList<>();
+        List<Entry> listHeartrate = new ArrayList<>();
 
-        List<Entry> tempList = new ArrayList<>();
-
-
-        for (int i = 1; i < 8; i++) {
-            heartbeatList.add(new Entry(i, (float) (Math.random()) * 100));
-            tempList.add(new Entry(i, (float) (Math.random()) * 30));
-            blist.add(new BarEntry(i, (float) (Math.random()) * 8000));
+        for (int i = 0; i < heartrate.length; i++) {
+            listHeartrate.add(new Entry(i, (float) heartrate[i]));
+        }
+        for (int i = 0; i < steps.length; i++) {
+            listSteps.add(new BarEntry(i, steps[i]));
         }
         //一个LineDataSet就是一条线
-        LineDataSet lineDataSet = new LineDataSet(heartbeatList, "HeartBeat");
-        LineData data = new LineData(lineDataSet);
-        mLineChart.setData(data);
-        mLineChart.getDescription().setEnabled(false);
+        LineDataSet lineDataSet = new LineDataSet(listHeartrate, "HeartBeat");
+        lineDataSet.setDrawCircleHole(false);
+        lineDataSet.setLineWidth(3f);
+        LineData lineData = new LineData(lineDataSet);
+        lineData.setDrawValues(false);
+        mLineChartHeartrate.setData(lineData);
+        mLineChartHeartrate.getDescription().setEnabled(false);
+        mLineChartHeartrate.getAxisRight().setEnabled(false);
+        mLineChartHeartrate.setDrawBorders(false);
 
-        LineDataSet tempDataSet = new LineDataSet(tempList, "Temp");
-        LineData tempdata = new LineData(tempDataSet);
-        hLineChart.setData(tempdata);
-        hLineChart.getDescription().setEnabled(false);
-
-
-        BarDataSet barDataSet = new BarDataSet(blist, "Steps");
+        BarDataSet barDataSet = new BarDataSet(listSteps, "Steps");
         barDataSet.setColor(Color.BLUE);
         BarData barData = new BarData(barDataSet);
-        mBarChart.setData(barData);
+        mBarChartSteps.setData(barData);
 
-        barData.setBarWidth(0.3f);//柱子的宽度
+        barData.setBarWidth(0.3f);//pillar's width
 
 
-        mBarChart.getXAxis().setCenterAxisLabels(true);
-        mBarChart.getXAxis().setAxisMaximum(7);   //X轴最大数值
-        mBarChart.getXAxis().setAxisMinimum(1);   //X轴最小数值
-        mBarChart.getAxisRight().setEnabled(false);//右侧Y轴不显示   默认为显示
-        mBarChart.getDescription().setEnabled(false);
+        mBarChartSteps.getXAxis().setCenterAxisLabels(true);
+        mBarChartSteps.getAxisRight().setEnabled(false);
+        mBarChartSteps.getDescription().setEnabled(false);
+
 
     }
 }

@@ -33,11 +33,12 @@
                 android:layout_marginRight="10dp"
                 android:padding="10dp">
 
-                <TextView
-                    android:id="@+id/text_button_account_info"
-                    android:layout_width="wrap_content"
+                <Button
+                    android:id="@+id/btn_basic_info"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Account Info"
+                    android:background="@color/cardview_light_background"
                     android:textSize="18sp" />
 
 
@@ -52,11 +53,12 @@
                 android:layout_marginRight="10dp"
                 android:padding="10dp">
 
-                <TextView
-                    android:id="@+id/text_heartrate_title"
-                    android:layout_width="wrap_content"
+                <Button
+                    android:id="@+id/btn_change_account"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Change Account"
+                    android:background="@color/cardview_light_background"
                     android:textSize="18sp" />
 
 
